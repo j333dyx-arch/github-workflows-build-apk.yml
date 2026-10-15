@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1B2A5C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Mirpuri Mela</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#EBF2F4; --card:#FFFFFF; --ink:#10262D; --muted:#5A7078; --line:#CFDDE1;
+  --primary:#0E6B7E; --primary-d:#094A59; --on-primary:#FFFFFF;
+  --accent:#E8A317; --crocus:#6D3FB2;
+  --good:#15803D; --good-d:#166534; --good-bg:#DCFCE7; --on-good:#FFFFFF;
+  --bad:#B91C1C; --bad-d:#7F1D1D; --bad-bg:#FEE2E2; --on-bad:#FFFFFF;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0B171C; --card:#13252C; --ink:#EAF3F5; --muted:#8FA9B1; --line:#25414A;
+    --primary:#5CCBDB; --primary-d:#2A93A3; --on-primary:#04222A;
+    --accent:#F5B93A; --crocus:#B28DF0;
+    --good:#4ADE80; --good-d:#22A55A; --good-bg:#10301D; --on-good:#052313;
+    --bad:#F87171; --bad-d:#C24444; --bad-bg:#3A1717; --on-bad:#2A0707;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:ui-rounded,"SF Pro Rounded","Nunito","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  font-size:16px;line-height:1.35;min-height:100dvh;
+}
+button{font-family:inherit;touch-action:manipulation;cursor:pointer}
+#app{max-width:480px;margin:0 auto;min-height:100dvh;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+.pad{padding:16px}
+.muted{color:var(--muted)}
+.sm{font-size:14px}
+
+/* Hero: dusk on Dal Lake */
+.hero{
+  position:relative;overflow:hidden;color:#fff;
+  padding:calc(env(safe-area-inset-top) + 20px) 18px 128px;
+  background:linear-gradient(180deg,#1B2A5C 0%,#4B3194 52%,#D9794F 100%);
+}
+.scene{position:absolute;left:0;right:0;bottom:0;width:100%;height:118px;display:block}
+.boat{position:absolute;bottom:6px;left:56%;font-size:30px;animation:bob 4s ease-in-out infinite}
+.hz{position:relative;z-index:2}
+.hero h1{margin:0;font-size:34px;line-height:1.05;letter-spacing:-.8px;font-weight:900}
+.hero p{margin:6px 0 0;opacity:.92;font-size:16px}
+.snd{position:absolute;right:14px;top:calc(env(safe-area-inset-top) + 14px);z-index:3;border:0;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:18px}
+.chips{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.18);padding:6px 12px;border-radius:999px;font-weight:800;font-size:14px}
+.goal{margin-top:16px;max-width:300px}
+.gl{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:6px}
+.goal .pb{background:rgba(255,255,255,.25)}
+.goal .pb i{background:#F6C36B}
+
+/* Progress bars */
+.pb{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.pb i{display:block;height:100%;background:var(--dc,var(--primary));border-radius:99px;transition:width .4s}
+.pb.big{flex:1;height:14px}
+
+/* Buttons */
+.btn{
+  border:0;border-radius:16px;padding:14px 18px;font-weight:800;font-size:16px;
+  background:var(--primary);color:var(--on-primary);box-shadow:0 4px 0 var(--primary-d);
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--primary-d)}
+.btn.alt{background:var(--card);color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line);padding:12px 14px}
+.btn.alt:active{box-shadow:0 1px 0 var(--line)}
+.btn.good{background:var(--good);color:var(--on-good);box-shadow:0 4px 0 var(--good-d)}
+.btn.bad{background:var(--bad);color:var(--on-bad);box-shadow:0 4px 0 var(--bad-d)}
+.btn.wide{width:100%}
+.btn[disabled]{opacity:.45;box-shadow:none;transform:none;cursor:default}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;font-size:14px;margin:8px auto;display:block}
+
+/* Cards and home */
+.card{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:14px 16px}
+.quick{display:flex;gap:14px;align-items:center;justify-content:space-between;margin-top:-4px}
+.quick h2{margin:0 0 2px;font-size:20px}
+.quick p{margin:0;font-size:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.tip{background:color-mix(in srgb,var(--accent) 18%,var(--card));border-radius:16px;padding:12px 14px;font-size:15px;margin-bottom:6px}
+.sec{margin:20px 2px 10px;font-size:18px}
+.deck{
+  display:flex;gap:14px;align-items:center;width:100%;text-align:left;color:inherit;
+  background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:20px;
+  padding:12px 14px;margin-bottom:10px;
+}
+.deck:active{transform:translateY(2px)}
+.deck .ic{flex:none;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:26px;background:color-mix(in srgb,var(--dc) 16%,transparent)}
+.deck .dt{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.deck .dt b{font-size:17px}
+.deck .dt small{color:var(--muted);font-size:13px}
+.chev{font-size:26px;color:var(--muted)}
+.fine{font-size:13px;color:var(--muted);margin:18px 4px 4px}
+
+/* Top bar */
+.top{display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top) + 12px) 16px 8px}
+.x{border:0;background:none;font-size:26px;line-height:1;color:var(--muted);padding:4px 6px}
+.ttl{margin:0;font-size:20px;flex:1}
+.combo{font-weight:800;color:var(--accent);font-size:15px}
+
+/* Deck page */
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 4px}
+.mode{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;color:var(--ink);background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:18px;padding:14px 6px;font-size:22px}
+.mode b{font-size:14px}
+.mode span{font-size:12px;color:var(--muted)}
+.mode:active{transform:translateY(2px)}
+.prow{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:10px 14px;margin-bottom:8px}
+.prow .pt{display:flex;flex-direction:column;gap:2px;min-width:0}
+.prow .pt b{font-size:16px}
+.prow .pt span{font-size:14px;color:var(--muted)}
+.dots{flex:none;white-space:nowrap}
+.dots i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--line);margin-left:3px}
+.dots i.on{background:var(--accent)}
+.search{width:100%;font:inherit;font-size:16px;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);margin-bottom:12px}
+.search:focus{outline:3px solid color-mix(in srgb,var(--primary) 40%,transparent);border-color:var(--primary)}
+.empty{text-align:center;color:var(--muted);padding:24px 8px}
+
+/* Colour swatch */
+.sw{width:56px;height:56px;border-radius:50%;border:3px solid rgba(128,128,128,.45);margin:0 auto 10px}
+
+/* Quiz */
+.prompt{margin:8px 16px 16px;padding:22px 18px;text-align:center;background:var(--card);border:2px solid var(--line);border-radius:22px}
+.prompt .lab{font-size:14px;font-weight:700;color:var(--muted)}
+.prompt .big{font-size:28px;font-weight:900;margin-top:8px;letter-spacing:-.3px;overflow-wrap:anywhere}
+.opts{padding:0 16px}
+.opt{
+  display:block;width:100%;text-align:left;font-weight:700;font-size:17px;color:var(--ink);
+  background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;
+  padding:14px 16px;margin-bottom:10px;
+}
+.opt:active:not([disabled]){transform:translateY(2px)}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg);animation:shake .35s}
+.opt.dim{opacity:.55}
+.slots{min-height:70px;margin:0 16px;padding:10px 4px;border-bottom:2px dashed var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:20px 16px}
+.wchip{font-weight:800;font-size:17px;color:var(--ink);background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:12px;padding:8px 12px}
+.wchip.ghost{visibility:hidden}
+.wchip[disabled]{opacity:.7}
+.qspace{height:190px}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:14px 16px calc(14px + env(safe-area-inset-bottom));background:var(--bg);border-top:2px solid var(--line)}
+.bar>div{max-width:480px;margin:0 auto}
+.bar.good{background:var(--good-bg);border-color:var(--good)}
+.bar.bad{background:var(--bad-bg);border-color:var(--bad)}
+.fbt{font-size:19px;font-weight:900;margin-bottom:2px}
+.bar.good .fbt{color:var(--good)}
+.bar.bad .fbt{color:var(--bad)}
+.fbs{font-size:15px;margin-bottom:6px}
+.bar .btn{margin-top:8px}
+
+/* Flashcards */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 16px 0;padding:4px;background:var(--card);border:2px solid var(--line);border-radius:14px}
+.seg button{border:0;background:none;color:var(--muted);font-weight:800;font-size:14px;padding:9px 6px;border-radius:10px}
+.seg button.on{background:var(--primary);color:var(--on-primary)}
+.fcwrap{padding:0 16px}
+.fc{perspective:1100px;margin:14px 0}
+.fc-in{position:relative;min-height:310px;transition:transform .5s;transform-style:preserve-3d}
+.fc.flipped .fc-in{transform:rotateY(180deg)}
+.face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:22px;border-radius:26px;background:var(--card);border:2px solid var(--line);border-bottom-width:6px;
+}
+.face.back{transform:rotateY(180deg);background:linear-gradient(170deg,#4B3194,#1B2A5C);color:#fff;border-color:#141F47}
+.face .lab{font-size:14px;font-weight:700;opacity:.7;margin-bottom:10px}
+.face .big{font-size:30px;font-weight:900;letter-spacing:-.4px;overflow-wrap:anywhere}
+.face .hint{position:absolute;bottom:16px;font-size:13px;color:var(--muted)}
+.face .note{margin-top:14px;font-size:15px;background:rgba(255,255,255,.16);padding:8px 12px;border-radius:12px}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;opacity:0;pointer-events:none;transition:opacity .2s}
+.fcwrap.shown .acts{opacity:1;pointer-events:auto}
+
+/* Match */
+.mhead{padding:4px 18px 12px;color:var(--muted);font-size:15px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px}
+.mcol{display:flex;flex-direction:column;gap:10px}
+.mt{
+  min-height:68px;padding:10px;font-weight:800;font-size:15px;color:var(--ink);text-align:center;
+  background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;overflow-wrap:anywhere;
+}
+.mt.sel{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 16%,var(--card))}
+.mt.wrong{border-color:var(--bad);background:var(--bad-bg);animation:shake .35s}
+.mt.done{border-color:var(--good);background:var(--good-bg);opacity:.45}
+
+/* Results */
+.res{text-align:center;padding:calc(env(safe-area-inset-top) + 40px) 20px 20px}
+.res .em{font-size:72px;line-height:1}
+.res h1{margin:10px 0 2px;font-size:32px;letter-spacing:-.6px;font-weight:900}
+.stars{font-size:40px;letter-spacing:6px;margin:8px 0 6px;color:var(--line)}
+.stars .on{color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}
+.stat{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 4px}
+.stat b{display:block;font-size:22px}
+.stat span{font-size:13px;color:var(--muted)}
+.res .btn{margin-top:10px}
+
+/* Confetti */
+.cf{position:fixed;top:-40px;font-size:24px;z-index:50;pointer-events:none;animation:fall linear forwards}
+
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-4px) rotate(2deg)}}
+@keyframes fall{to{transform:translateY(112vh) rotate(540deg)}}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+'use strict';
+
+/* ---------- Phrase data (from the Mirpuri phrase sheet) ---------- */
+/* item = [Mirpuri, English, note?, colour hex?] */
+const DECKS=[
+ {id:'greet',name:'Hello and how are you',emoji:'👋',color:'#0E6B7E',desc:'Say hi and ask how someone is',items:[
+  ['Salaam','Hello'],
+  ['Khudaafiz','Goodbye'],
+  ['Kashmir vich tashreef llaikinu','Welcome to Kashmir'],
+  ['Kea aal eh?','How are you?'],
+  ['Meh teek, shukar',"I'm fine, thank you"],
+  ['Bas teek a','Well enough'],
+  ['Ta tut eek eh?','And you?'],
+  ['Saara kuch teek eh?',"So how's everything?"],
+  ['Navi taazi?',"What's new?"],
+  ['Kuch ni','Nothing'],
+  ['Taara khandaan na ke aal eh?','How is your family?'],
+  ['Saare teek an','Everyone is fine'],
+  ['Khyaa rakhna','Take care'],
+  ['Salaam alaykam Smith saab','Greetings, Mr Smith']]},
+ {id:'people',name:'People and family',emoji:'👨‍👩‍👧',color:'#B83A5B',desc:'Family, friends and neighbours',items:[
+  ['Saab','Mister, Sir'],
+  ['Memsaab','Lady, Mrs, Madam'],
+  ['Janaani','Miss, Young lady'],
+  ['O kon a',"Who's that?"],
+  ['O janaa kon a','Who is that man?'],
+  ['O janaani kon a','Who is that woman?'],
+  ['O murra kon a','Who is that boy?'],
+  ['O kuri kon a','Who is that girl?'],
+  ['O maara janaa ya','That is my husband'],
+  ['O maari janaani eh','That is my wife'],
+  ['O maara murra eh','That is my son'],
+  ['O maari thi eh','That is my daughter'],
+  ['O marri thi yan','They are my daughters'],
+  ['O maara gamaandi eh','That is my neighbour (male)'],
+  ['O graai eh','That is a villager'],
+  ['Eh maara dost a','This is my friend'],
+  ['Eh maari saheli eh','This is my friend (woman)']]},
+ {id:'meet',name:'Meeting someone',emoji:'🤝',color:'#C77D0A',desc:'Names and nice to meet you',items:[
+  ['Taara naa keh (vai)?',"What's your name?"],
+  ['Maara naa Raja Rafaqat eh','My name is Raja Rafaqat'],
+  ['Tusaki mili changa oya','Nice to meet you'],
+  ['Miki vi changa lagaa','The pleasure was mine'],
+  ['Tu usi jaana eh?','Do you know him?'],
+  ['Tu ibrahimki jaana eh?','Do you know Ibrahim? (talking to a man)','Jaana eh is for a man, jaani eh is for a woman.'],
+  ['Tu ibrahimki jaani eh?','Do you know Ibrahim? (talking to a woman)','Jaani eh is for a woman, jaana eh is for a man.']]},
+ {id:'where',name:'Where are you from?',emoji:'🏔️',color:'#4B5BC9',desc:'Where you were born and live',items:[
+  ['Tusaa kudharo aiyo?','Where are you from?'],
+  ['Meh azaad Kashmir tu aa',"I'm from Azaad Kashmir"],
+  ['Tusa kutha pada oiso?','Where were you born?'],
+  ['Meh Muzaffarabad vich pada oiyasaa','I was born in Muzaffarabad'],
+  ['O kutha pada oiyaasi?','Where was he born?'],
+  ['O Birmingham vich pada oiyaasi','He was born in Birmingham'],
+  ['Tusa kutha rehne o?','Where do you live?'],
+  ['Meh phaar vich rehna ya','I live in the hills'],
+  ['Meh nike sher vich rehna ya','I live in a small town'],
+  ['O kutha rehne an?','Where do they live?'],
+  ['O bare sher vich rehne an','They live in a big city'],
+  ['O London vich ni rehne',"They don't live in London"],
+  ['Asaa vi bare sher vich rehne aa','We also live in a big city']]},
+ {id:'hotel',name:'At the hotel',emoji:'🏨',color:'#6D3FB2',desc:'Ask for a room like a pro',items:[
+  ['Salaam alaykum saab, me tusaa vastaa koi cheez kari sakna','Good day sir, may I help you?'],
+  ['Miki ekh kamraa cheina','I would like a room'],
+  ['Kitne bande vasta?','For how many people?'],
+  ['Meh kalaa ya',"I'm alone",'The sheet had these two rows swapped, so I matched them up. Worth double-checking.'],
+  ['Do bande vasta','For two people'],
+  ['Kitniyaa raata vastaa?','For how many nights?'],
+  ['Takreeban paanj raata',"Let's say five nights"],
+  ['Ahaa, mare kohl kamraa ya','Yes, I have a room'],
+  ['Maaf karo, mare kohl kamraa ni','Unfortunately I do not have a room'],
+  ['Meh kamrey ki taki saknaa?','May I see the room?'],
+  ['Kamraa nika ya','The room is small'],
+  ['Tusaa kohl bara kamraa ya?','Do you have a bigger room?'],
+  ['Kamrey vich andera ya','The room is dark'],
+  ['Ik raati vastaa kamraa kitne na?','How much is the room per night?'],
+  ['Otel vich restrant a?','Is the restaurant in the hotel?'],
+  ['Kamrey ne keem ta vich naashta vi a?','Is breakfast included in the price of the room?']]},
+ {id:'colors',name:'Colours',emoji:'🎨',color:'#D6457E',desc:'Paint the town',items:[
+  ['Gulaab','Pink','','#F472B6'],
+  ['Jaamni','Purple','','#7E22CE'],
+  ['Laal / Suwwah','Red','','#DC2626'],
+  ['Surmai','Grey','','#9CA3AF'],
+  ['Kaala','Black','','#111827'],
+  ['Neela','Blue','','#2563EB'],
+  ['Sabzi','Green','Sabzi also means vegetables.','#16A34A']]},
+ {id:'words',name:'Everyday words',emoji:'📝',color:'#2F8F4E',desc:'Handy words you will use daily',items:[
+  ['Paagal','Crazy'],
+  ['Mara','My'],
+  ['Mesij','Message'],
+  ['Meh','I'],
+  ['Uhn','Now'],
+  ['Koivi ni','Nobody'],
+  ['Asana','Our'],
+  ['Asaa','We'],
+  ['Kaan','Ear'],
+  ['Sare paase','Everywhere'],
+  ['Sakoon','Peace'],
+  ['Niki chiri','Small bird'],
+  ['Badal latha','It rained'],
+  ['Usne kohl ni','He cannot'],
+  ['Seb','Apple'],
+  ['Aana','Bring'],
+  ['Kiyaa','Why'],
+  ['Is vaste','Because']]},
+ {id:'chat',name:'Talking about Potwari',emoji:'💬',color:'#0F7B6C',desc:'Languages, plans and reasons',items:[
+  ['Potwari kutha bolne an?','Where do people speak Potwari?'],
+  ['Potwari potwar ilaaka Pakistan vich ta azaad Kashmir vich bolne an','People speak Potwari in the Potwar region of Pakistan and in Azaad Kashmir'],
+  ['Azaad Kashmir vich aur keh zabaan bolnen?','What other languages do they speak in Azaad Kashmir?'],
+  ['Urdu ta Punjabi vich bolnen','Urdu and Punjabi are also spoken'],
+  ['Zabardast a',"That's interesting"],
+  ['Tusaa mirpur vich kitnaa arsaa?','For how long will you be staying in Mirpur?'],
+  ['Meh do afte vastaa rehsaa','I will be here for two weeks'],
+  ['Tusaa potwari kiyaa sikne o?','Why are you learning Potwari?'],
+  ['Kiyaa miki o zabaan pasand a','Because I like the language'],
+  ['Kiyaa mare vaalad potwaar tu an','Because my parents come from Potwar'],
+  ['Kiyaa meh Kashmir vich biznis karsa','Because I am going to do business in Kashmir']]}
+];
+
+const CHEERS=['Shabaash!','Wah, wah!','Bilkul sahi!','Changa!'];
+const TITLES=['Tourist','Visitor','Friend','Neighbour','Villager','Local','Legend'];
+const TIPS=[
+ 'In the sheet, "jaana eh" is used when talking to a man and "jaani eh" when talking to a woman.',
+ 'Saab is Sir, Memsaab is Madam and Janaani is Miss.',
+ 'Sabzi means green and also vegetables.',
+ 'Potwari is spoken in the Potwar region of Pakistan and in Azaad Kashmir.',
+ 'Finish a chat with "Khyaa rakhna" to say take care.',
+ 'Salaam works for hello. Add "alaykam" and a name for a warmer greeting.'
+];
+const GOAL=50;
+
+const ALL=[];
+DECKS.forEach(d=>{d.cards=[];d.items.forEach((it,i)=>{
+  const c={k:d.id+':'+i,deck:d,mir:it[0],eng:it[1],note:it[2]||'',sw:it[3]||''};
+  ALL.push(c);d.cards.push(c);
+});});
+const deckById=id=>DECKS.find(d=>d.id===id);
+const poolOf=id=>id==='all'?ALL:deckById(id).cards;
+
+/* ---------- Helpers ---------- */
+const $app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rnd=n=>Math.floor(Math.random()*n);
+const any=a=>a[rnd(a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+const sw=c=>c.sw?`<div class="sw" style="background:${c.sw}"></div>`:'';
+
+/* Storage: saved on the device when the browser allows it, otherwise kept for this session. */
+const store={
+  mem:{},
+  get(k){try{const v=window.localStorage.getItem(k);return v===null?(this.mem[k]||null):v;}catch(e){return this.mem[k]||null;}},
+  set(k,v){this.mem[k]=v;try{window.localStorage.setItem(k,v);}catch(e){}}
+};
+const fresh=()=>({xp:0,streak:0,lastDay:'',mastery:{},sound:true,dir:'e2m',daily:{date:'',xp:0}});
+let S=fresh();
+try{const raw=store.get('mirpuri-mela-v1');if(raw)S=Object.assign(fresh(),JSON.parse(raw));}catch(e){}
+const save=()=>store.set('mirpuri-mela-v1',JSON.stringify(S));
+
+const dayStr=(d=new Date())=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const yesterday=()=>{const y=new Date();y.setDate(y.getDate()-1);return dayStr(y);};
+function touchDay(){
+  const t=dayStr();if(S.lastDay===t)return;
+  S.streak=(S.lastDay===yesterday())?S.streak+1:1;S.lastDay=t;
+}
+function addXP(n){
+  if(n<=0)return;
+  S.xp+=n;const t=dayStr();
+  if(S.daily.date!==t)S.daily={date:t,xp:0};
+  S.daily.xp+=n;touchDay();save();
+}
+const m=c=>S.mastery[c.k]||0;
+function bump(c,delta){S.mastery[c.k]=clamp(m(c)+delta,0,4);save();}
+function pickCards(pool,n){
+  return pool.map(c=>({c,s:m(c)+Math.random()*2})).sort((a,b)=>a.s-b.s).slice(0,n).map(x=>x.c);
+}
+
+/* Sound and haptics */
+let ac=null;
+function beep(freqs,dur=0.12,type='sine'){
+  if(!S.sound)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const t=ac.currentTime;
+    freqs.forEach((f,i)=>{
+      const o=ac.createOscillator(),g=ac.createGain();
+      o.type=type;o.frequency.value=f;o.connect(g);g.connect(ac.destination);
+      const s=t+i*dur;
+      g.gain.setValueAtTime(0.0001,s);
+      g.gain.exponentialRampToValueAtTime(0.16,s+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001,s+dur);
+      o.start(s);o.stop(s+dur+0.03);
+    });
+  }catch(e){}
+}
+const GOOD=[660,880],BAD=[220,160],WIN=[523,659,784,1047];
+const buzz=p=>{try{if(S.sound&&navigator.vibrate)navigator.vibrate(p);}catch(e){}};
+
+function confetti(){
+  const em=['🍁','✨','⭐','🎉','🌸'];
+  for(let i=0;i<26;i++){
+    const s=document.createElement('span');
+    s.className='cf';s.textContent=any(em);
+    s.style.left=rnd(96)+'vw';
+    s.style.animationDuration=(2.2+Math.random()*1.8)+'s';
+    s.style.animationDelay=(Math.random()*0.8)+'s';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),4600);
+  }
+}
+
+/* ---------- Navigation ---------- */
+let view='home',P={};
+let Q=null,F=null,M=null,R=null;
+
+function go(v,p={},push=true){
+  const was=view;view=v;P=p;render();window.scrollTo(0,0);
+  if(push&&v!=='home'){
+    try{was==='home'?history.pushState({v},''):history.replaceState({v},'');}catch(e){}
+  }
+}
+window.addEventListener('popstate',()=>{if(view!=='home')go('home',{},false);});
+
+function render(){
+  const f={home:rHome,deck:rDeck,book:rBook,cards:rCards,quiz:rQuiz,match:rMatch,results:rResults}[view];
+  $app.innerHTML=f();
+}
+
+/* ---------- Home ---------- */
+function deckCard(d){
+  const n=d.cards.length,l=d.cards.filter(c=>m(c)>=2).length;
+  const pct=Math.round(d.cards.reduce((a,c)=>a+m(c),0)/(n*4)*100);
+  return `<button class="deck" data-a="deck" data-id="${d.id}" style="--dc:${d.color}">
+    <span class="ic">${d.emoji}</span>
+    <span class="dt"><b>${esc(d.name)}</b><small>${l} of ${n} learned</small><span class="pb"><i style="width:${pct}%"></i></span></span>
+    <span class="chev">›</span></button>`;
+}
+function rHome(){
+  const today=dayStr();
+  const dxp=S.daily.date===today?S.daily.xp:0;
+  const lvl=Math.floor(S.xp/100)+1;
+  const streak=(S.lastDay===today||S.lastDay===yesterday())?S.streak:0;
+  const learned=ALL.filter(c=>m(c)>=2).length;
+  return `
+  <header class="hero">
+    <button class="snd" data-a="sound" aria-label="Sound ${S.sound?'on':'off'}">${S.sound?'🔊':'🔇'}</button>
+    <div class="hz">
+      <h1>Salaam!</h1>
+      <p>Learn Mirpuri one phrase at a time.</p>
+      <div class="chips">
+        <span class="chip">🔥 ${streak} day${streak===1?'':'s'}</span>
+        <span class="chip">⭐ ${S.xp} XP</span>
+        <span class="chip">Level ${lvl}: ${TITLES[Math.min(lvl-1,TITLES.length-1)]}</span>
+      </div>
+      <div class="goal">
+        <div class="gl"><span>Today's goal</span><span>${Math.min(dxp,GOAL)} of ${GOAL} XP</span></div>
+        <div class="pb"><i style="width:${Math.min(100,dxp/GOAL*100)}%"></i></div>
+      </div>
+    </div>
+    <svg class="scene" viewBox="0 0 400 120" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <circle cx="296" cy="56" r="24" fill="#F6C36B"/>
+      <polygon points="0,120 0,64 48,34 84,58 140,16 200,62 246,40 300,70 350,36 400,60 400,120" fill="#3B2F7A" opacity=".8"/>
+      <polygon points="0,120 0,88 60,60 120,86 190,52 250,90 320,66 400,92 400,120" fill="#1D3F63"/>
+      <rect x="0" y="98" width="400" height="22" fill="#0B3C49"/>
+    </svg>
+    <div class="boat" aria-hidden="true">🛶</div>
+  </header>
+  <main class="pad">
+    <section class="card quick">
+      <div><h2>Mixed practice</h2><p class="muted">10 questions from every topic. ${learned} of ${ALL.length} phrases learned.</p></div>
+      <button class="btn" data-a="quiz" data-id="all">Start</button>
+    </section>
+    <div class="row2">
+      <button class="btn alt" data-a="matchstart" data-id="all">🧩 Match game</button>
+      <button class="btn alt" data-a="book">📖 Phrasebook</button>
+    </div>
+    <div class="tip">💡 ${esc(any(TIPS))}</div>
+    <h3 class="sec">Topics</h3>
+    ${DECKS.map(deckCard).join('')}
+    <p class="fine">Phrases and spellings come from a community phrase sheet. Mirpuri is mostly spoken, so spelling varies between speakers. Check tricky phrases with a native speaker.</p>
+    <button class="link" data-a="reset">Reset progress</button>
+  </main>`;
+}
+
+/* ---------- Deck page and phrasebook ---------- */
+function dots(c){let s='';for(let i=0;i<4;i++)s+=`<i class="${i<m(c)?'on':''}"></i>`;return `<span class="dots">${s}</span>`;}
+function prow(c,emoji){
+  return `<div class="prow"><div class="pt"><b>${emoji?emoji+' ':''}${esc(c.mir)}</b><span>${esc(c.eng)}</span></div>${dots(c)}</div>`;
+}
+function rDeck(){
+  const d=deckById(P.id),n=d.cards.length,l=d.cards.filter(c=>m(c)>=2).length;
+  const pct=Math.round(d.cards.reduce((a,c)=>a+m(c),0)/(n*4)*100);
+  return `
+  <div class="top"><button class="x" data-a="home" aria-label="Back">←</button><h2 class="ttl">${d.emoji} ${esc(d.name)}</h2></div>
+  <div class="pad" style="--dc:${d.color}">
+    <div class="card"><div class="pb"><i style="width:${pct}%"></i></div><div class="muted sm" style="margin-top:6px">${l} of ${n} learned</div></div>
+    <div class="modes">
+      <button class="mode" data-a="cards" data-id="${d.id}">🗂️<b>Flashcards</b><span>Flip and learn</span></button>
+      <button class="mode" data-a="quiz" data-id="${d.id}">⚡<b>Quiz</b><span>10 questions</span></button>
+      <button class="mode" data-a="matchstart" data-id="${d.id}">🧩<b>Match</b><span>Pair them up</span></button>
+    </div>
+    <h3 class="sec">All phrases</h3>
+    ${d.cards.map(c=>prow(c)).join('')}
+  </div>`;
+}
+function bookList(term){
+  const t=term.trim().toLowerCase();
+  const list=ALL.filter(c=>!t||c.mir.toLowerCase().includes(t)||c.eng.toLowerCase().includes(t));
+  return list.length?list.map(c=>prow(c,c.deck.emoji)).join(''):'<div class="empty">No phrases match. Try another word.</div>';
+}
+function rBook(){
+  return `
+  <div class="top"><button class="x" data-a="home" aria-label="Back">←</button><h2 class="ttl">📖 Phrasebook</h2></div>
+  <div class="pad">
+    <input id="q" class="search" type="search" placeholder="Search English or Mirpuri" autocomplete="off" autocapitalize="off">
+    <div id="plist">${bookList('')}</div>
+  </div>`;
+}
+
+/* ---------- Flashcards ---------- */
+function startCards(id){
+  const pool=poolOf(id);
+  F={id,cards:pickCards(pool,Math.min(12,pool.length)),i:0,flip:false,got:0,again:0,req:new Set()};
+  go('cards',{id});
+}
+function rCards(){
+  const c=F.cards[F.i],total=F.cards.length,e2m=S.dir!=='m2e';
+  const front=e2m?c.eng:c.mir,back=e2m?c.mir:c.eng;
+  return `
+  <div class="top"><button class="x" data-a="home" aria-label="Close">✕</button><div class="pb big"><i style="width:${F.i/total*100}%"></i></div></div>
+  <div class="seg">
+    <button class="${e2m?'on':''}" data-a="dir" data-d="e2m">English first</button>
+    <button class="${!e2m?'on':''}" data-a="dir" data-d="m2e">Mirpuri first</button>
+  </div>
+  <div class="fcwrap${F.flip?' shown':''}">
+    <div class="fc${F.flip?' flipped':''}" data-a="flip">
+      <div class="fc-in">
+        <div class="face"><div class="lab">${e2m?'English':'Mirpuri'}</div>${sw(c)}<div class="big">${esc(front)}</div><div class="hint">Tap the card to flip it</div></div>
+        <div class="face back"><div class="lab">${e2m?'Mirpuri':'English'}</div>${sw(c)}<div class="big">${esc(back)}</div>${c.note?`<div class="note">💡 ${esc(c.note)}</div>`:''}</div>
+      </div>
+    </div>
+    <div class="acts">
+      <button class="btn bad" data-a="again">🔁 Again</button>
+      <button class="btn good" data-a="got">✅ Got it</button>
+    </div>
+  </div>`;
+}
+function nextCard(){
+  F.i++;F.flip=false;
+  if(F.i>=F.cards.length){
+    addXP(5);
+    const acc=(F.got+F.again)?F.got/(F.got+F.again):1;
+    R={mode:'cards',pool:F.id,acc,stats:[['Got it',F.got],['Again',F.again],['XP','+'+(F.got*3+5)]]};
+    go('results');beep(WIN,0.1);if(acc>=.65)confetti();
+  }else render();
+}
+
+/* ---------- Quiz ---------- */
+function distractors(c,key){
+  const L=c[key].length;
+  const arr=ALL.filter(x=>x!==c&&x[key]!==c[key])
+    .map(x=>({x,s:Math.abs(x[key].length-L)-(x.deck===c.deck?6:0)+Math.random()*4}))
+    .sort((a,b)=>a.s-b.s);
+  const out=[],seen=new Set([c[key]]);
+  for(const e of arr){
+    if(!seen.has(e.x[key])){seen.add(e.x[key]);out.push(e.x[key]);}
+    if(out.length===3)break;
+  }
+  return out;
+}
+function makeQ(c){
+  const words=c.mir.split(' ');
+  let type;
+  if(!c.sw&&!c.mir.includes('/')&&words.length>=3&&words.length<=8&&Math.random()<0.4)type='build';
+  else type=Math.random()<0.55?'e2m':'m2e';
+  const q={c,type};
+  if(type==='build'){
+    const pool=[...new Set(ALL.filter(x=>x!==c).flatMap(x=>x.mir.split(' ')))].filter(w=>!words.includes(w)&&!w.includes('/'));
+    const extra=shuffle(pool).slice(0,2);
+    q.bank=shuffle(words.map((w,i)=>({w,id:i})).concat(extra.map((w,j)=>({w,id:100+j}))));
+    q.ans=[];
+  }else{
+    const key=type==='e2m'?'mir':'eng';
+    q.right=c[key];
+    q.opts=shuffle([c[key]].concat(distractors(c,key)));
+  }
+  return q;
+}
+function startQuiz(id){
+  const pool=poolOf(id);
+  const cards=pickCards(pool,Math.min(10,pool.length));
+  Q={id,qs:cards.map(makeQ),i:0,correct:0,total:0,combo:0,best:0,xp:0,answered:false,ok:false,sel:null,gain:0,msg:''};
+  go('quiz',{id});
+}
+const wordOf=(q,id)=>q.bank.find(b=>b.id===id).w;
+function rQuiz(){
+  const q=Q.qs[Q.i],c=q.c,total=Q.qs.length;
+  const prompt=q.type==='m2e'?c.mir:c.eng;
+  const lab=q.type==='e2m'?'How do you say this in Mirpuri?':q.type==='m2e'?'What does this mean?':'Build this in Mirpuri';
+  let inner;
+  if(q.type==='build'){
+    const slots=q.ans.map(id=>`<button class="wchip" data-a="unword" data-id="${id}" ${Q.answered?'disabled':''}>${esc(wordOf(q,id))}</button>`).join('');
+    const bank=q.bank.map(b=>`<button class="wchip${q.ans.includes(b.id)?' ghost':''}" data-a="word" data-id="${b.id}" ${Q.answered?'disabled':''}>${esc(b.w)}</button>`).join('');
+    inner=`<div class="slots">${slots}</div><div class="bank">${bank}</div>`;
+  }else{
+    inner=`<div class="opts">${q.opts.map((o,i)=>{
+      let cls='opt';
+      if(Q.answered){if(o===q.right)cls+=' right';else if(i===Q.sel)cls+=' wrong';else cls+=' dim';}
+      return `<button class="${cls}" data-a="pick" data-i="${i}" ${Q.answered?'disabled':''}>${esc(o)}</button>`;
+    }).join('')}</div>`;
+  }
+  let bar='';
+  if(Q.answered){
+    const ok=Q.ok,ans=q.type==='m2e'?c.eng:c.mir;
+    bar=`<div class="bar ${ok?'good':'bad'}"><div>
+      <div class="fbt">${ok?esc(Q.msg)+(Q.gain?' +'+Q.gain+' XP':''):'Not quite'}</div>
+      ${ok?'':`<div class="fbs">Answer: <b>${esc(ans)}</b></div>`}
+      ${c.note?`<div class="fbs">💡 ${esc(c.note)}</div>`:''}
+      <button class="btn ${ok?'good':'bad'} wide" data-a="next">Continue</button></div></div>`;
+  }else if(q.type==='build'){
+    bar=`<div class="bar"><div><button class="btn wide" data-a="check" ${q.ans.length?'':'disabled'}>Check</button></div></div>`;
+  }
+  const prog=(Q.i+(Q.answered?1:0))/total*100;
+  return `
+  <div class="top"><button class="x" data-a="home" aria-label="Quit">✕</button><div class="pb big"><i style="width:${prog}%"></i></div>${Q.combo>1?`<span class="combo">🔥 ${Q.combo}</span>`:''}</div>
+  <div class="prompt"><div class="lab">${lab}</div>${q.type!=='build'?sw(c):''}<div class="big">${esc(prompt)}</div></div>
+  ${inner}
+  <div class="qspace"></div>${bar}`;
+}
+function grade(ok){
+  const q=Q.qs[Q.i];
+  Q.answered=true;Q.ok=ok;Q.total++;
+  if(ok){
+    Q.correct++;Q.combo++;Q.best=Math.max(Q.best,Q.combo);
+    Q.gain=10+Math.min(Q.combo-1,5)*2;Q.xp+=Q.gain;Q.msg=any(CHEERS);
+    addXP(Q.gain);bump(q.c,1);beep(GOOD);buzz(15);
+  }else{
+    Q.combo=0;Q.gain=0;bump(q.c,-1);beep(BAD,0.16,'triangle');buzz([40,40,40]);
+    if(!q.retry)Q.qs.push(Object.assign(makeQ(q.c),{retry:true}));
+  }
+  render();
+}
+function nextQ(){
+  if(Q.i+1>=Q.qs.length){
+    const acc=Q.total?Q.correct/Q.total:0,bonus=acc>=.9?10:0;
+    addXP(bonus);
+    R={mode:'quiz',pool:Q.id,acc,stats:[['Correct',Q.correct+'/'+Q.total],['Best combo',Q.best],['XP','+'+(Q.xp+bonus)]]};
+    go('results');beep(WIN,0.1);if(acc>=.65)confetti();
+  }else{
+    Q.i++;Q.answered=false;Q.sel=null;render();window.scrollTo(0,0);
+  }
+}
+
+/* ---------- Match game ---------- */
+function startMatch(id){
+  let pool=poolOf(id).filter(c=>c.eng.length<=38&&c.mir.length<=30);
+  if(pool.length<6)pool=poolOf(id);
+  const cards=pickCards(pool,Math.min(6,pool.length));
+  M={id,cards,left:shuffle(cards.map(c=>c.k)),right:shuffle(cards.map(c=>c.k)),done:new Set(),selL:null,selR:null,mistakes:0,lock:false,bad:null,t0:Date.now()};
+  go('match',{id});
+}
+function rMatch(){
+  const by=k=>M.cards.find(c=>c.k===k);
+  const cell=(side,k,txt)=>{
+    const done=M.done.has(k);
+    let cls='mt';
+    if(done)cls+=' done';else if(M['sel'+side]===k)cls+=' sel';
+    if(M.bad&&M.bad[side]===k)cls+=' wrong';
+    return `<button class="${cls}" data-a="mt" data-s="${side}" data-k="${k}" ${done?'disabled':''}>${esc(txt)}</button>`;
+  };
+  return `
+  <div class="top"><button class="x" data-a="home" aria-label="Quit">✕</button><h2 class="ttl">Match the pairs</h2></div>
+  <div class="mhead">Tap a Mirpuri phrase, then its English meaning. ${M.done.size} of ${M.cards.length} matched.</div>
+  <div class="mgrid">
+    <div class="mcol">${M.left.map(k=>cell('L',k,by(k).mir)).join('')}</div>
+    <div class="mcol">${M.right.map(k=>cell('R',k,by(k).eng)).join('')}</div>
+  </div>`;
+}
+function tapMatch(side,k){
+  if(M.lock||M.done.has(k))return;
+  const key='sel'+side;
+  M[key]=(M[key]===k)?null:k;
+  beep([520],0.05);
+  if(M.selL&&M.selR){
+    const cur=M;
+    if(M.selL===M.selR){
+      const c=M.cards.find(x=>x.k===M.selL);
+      M.done.add(M.selL);M.selL=M.selR=null;bump(c,1);beep(GOOD);buzz(15);
+      render();
+      if(M.done.size===M.cards.length)setTimeout(()=>{if(M===cur)finishMatch();},550);
+    }else{
+      M.mistakes++;M.bad={L:M.selL,R:M.selR};M.lock=true;
+      bump(M.cards.find(x=>x.k===M.selL),-1);beep(BAD,0.16,'triangle');buzz([40,40,40]);
+      render();
+      setTimeout(()=>{if(M!==cur||view!=='match')return;M.bad=null;M.selL=M.selR=null;M.lock=false;render();},550);
+    }
+    return;
+  }
+  render();
+}
+function finishMatch(){
+  const n=M.cards.length,xp=Math.max(10,30-4*M.mistakes);
+  const acc=n/(n+M.mistakes),secs=Math.round((Date.now()-M.t0)/1000);
+  addXP(xp);
+  R={mode:'match',pool:M.id,acc,stats:[['Mistakes',M.mistakes],['Time',secs+'s'],['XP','+'+xp]]};
+  go('results');beep(WIN,0.1);if(acc>=.65)confetti();
+}
+
+/* ---------- Results ---------- */
+function rResults(){
+  const stars=R.acc>=.9?3:R.acc>=.65?2:1;
+  const t=stars===3?['🎉','Shabaash!','Brilliant round.']:stars===2?['😊','Changa!','Nice work. One more round?']:['💪','Keep going!','Practice makes it stick.'];
+  const again=R.mode==='quiz'?'quiz':R.mode==='cards'?'cards':'matchstart';
+  return `
+  <div class="res">
+    <div class="em">${t[0]}</div>
+    <h1>${t[1]}</h1>
+    <div class="stars">${[1,2,3].map(i=>`<span class="${i<=stars?'on':''}">★</span>`).join('')}</div>
+    <div class="muted">${t[2]}</div>
+    <div class="stats">${R.stats.map(s=>`<div class="stat"><b>${esc(s[1])}</b><span>${esc(s[0])}</span></div>`).join('')}</div>
+    <button class="btn wide" data-a="${again}" data-id="${R.pool}">Play again</button>
+    <button class="btn alt wide" data-a="home">Back to topics</button>
+  </div>`;
+}
+
+/* ---------- Events ---------- */
+const H={
+  home(){go('home',{},false);},
+  deck(d){go('deck',{id:d.id});},
+  book(){go('book');},
+  sound(){S.sound=!S.sound;save();render();},
+  reset(d,el){
+    if(el.dataset.arm){S=fresh();save();go('home',{},false);return;}
+    el.dataset.arm='1';el.textContent='Tap again to erase all progress';
+    setTimeout(()=>{if(el.isConnected){delete el.dataset.arm;el.textContent='Reset progress';}},4000);
+  },
+  quiz(d){startQuiz(d.id);},
+  pick(d){if(Q.answered)return;const q=Q.qs[Q.i];Q.sel=+d.i;grade(q.opts[+d.i]===q.right);},
+  word(d){if(Q.answered)return;const q=Q.qs[Q.i],id=+d.id;if(!q.ans.includes(id))q.ans.push(id);beep([700],0.04);render();},
+  unword(d){if(Q.answered)return;const q=Q.qs[Q.i];q.ans=q.ans.filter(x=>x!==+d.id);render();},
+  check(){if(Q.answered)return;const q=Q.qs[Q.i];if(!q.ans.length)return;grade(q.ans.map(id=>wordOf(q,id)).join(' ')===q.c.mir);},
+  next(){nextQ();},
+  cards(d){startCards(d.id);},
+  flip(d,el){F.flip=!F.flip;el.classList.toggle('flipped',F.flip);const w=el.closest('.fcwrap');if(w)w.classList.toggle('shown',F.flip);beep([440],0.04);},
+  got(){if(!F.flip)return;bump(F.cards[F.i],1);addXP(3);F.got++;beep(GOOD);nextCard();},
+  again(){
+    if(!F.flip)return;
+    const c=F.cards[F.i];bump(c,-1);F.again++;
+    if(!F.req.has(c.k)){F.req.add(c.k);F.cards.push(c);}
+    beep(BAD,0.12,'triangle');nextCard();
+  },
+  dir(d){S.dir=d.d;F.flip=false;save();render();},
+  matchstart(d){startMatch(d.id);},
+  mt(d){tapMatch(d.s,d.k);}
+};
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-a]');
+  if(!el||!H[el.dataset.a])return;
+  H[el.dataset.a](el.dataset,el);
+});
+document.addEventListener('input',e=>{
+  if(e.target&&e.target.id==='q'){
+    const box=document.getElementById('plist');
+    if(box)box.innerHTML=bookList(e.target.value);
+  }
+});
+
+render();
+})();
+
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  window.addEventListener('load',function(){try{navigator.serviceWorker.register('sw.js');}catch(e){}});
+}
+</script>
+</body>
+</html>
